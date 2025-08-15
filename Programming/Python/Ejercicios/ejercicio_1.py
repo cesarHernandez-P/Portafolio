@@ -17,13 +17,51 @@ def solicitar_notas():
 
     while True :
         
-        nota = input("Ingresar una nota, para salir ingresa la palabra 'fin' : ")
+        ingreso_nota = input("Ingresar una nota, para salir ingresa la palabra 'fin' : ")
 
-        if nota.lower == "fin":
+        if ingreso_nota.lower() == 'fin':
+
             break #* si el valor es ingresado es fin se detiene el programa
+        try:
+            nota = float(ingreso_nota)
+
+            if 0 <= nota <= 100 :
+
+                notas.append(nota)
+
+            else:
+
+                print ("Error : ingrese un numero valido") 
+
+        except ValueError:
+
+            print ("Error : ingrese un numero valido")
+    return notas
+
+def promedioNotas(notas):
+
+    if len(notas) == 0 or notas is None:
+
+        return None
+    else:
+
+        return sum(notas)/ len(notas)
 
 def main():
-    
+
+    notas = solicitar_notas()
+
+    promedio = promedioNotas(notas)
+
+    if promedio is None:
+
+        print ("No hay notas validas")
+
+    else :
+
+        print(f"El promedio de notas es : {promedio:.2f}")
+
+
 
 if __name__ == "__main__":
     main()
