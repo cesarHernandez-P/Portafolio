@@ -66,10 +66,63 @@ JOIN tb_ventasTotal vt ON  e.id_empleado = vt.id_empleado
 -- =================================
 
 -- 1.- Muestra el nombre de cada proyecto y la cantidad de empleados asignados.
+WITH tb_empleados as (
+    SELECT id_proyecto,count(id_empleado) as cantidadEmpleados
+    FROM dbo.asignaciones
+    GROUP BY id_proyecto
+
+)
+SELECT p.nombre,e.cantidadEmpleados
+FROM dbo.proyectos p
+LEFT JOIN tb_empleados e on e.id_proyecto = p.id_proyecto
+
+
 -- 2.- Lista los empleados que han trabajado en más de 2 proyectos.
+WITH tb_empleadosProyectos as (
+    SELECT  id_empleado, COUNT(id_proyecto) as totalProyecto
+    FROM dbo.asignaciones
+    GROUP BY id_empleado
+)
+
+SELECT nombre +' '+apellido as nombreEmpleado
+FROM dbo.empleados e
+JOIN tb_empleadosProyectos tep on tep.id_empleado = e.id_empleado
+WHERE tep.totalProyecto > 2
+
 -- 3.- Calcula cuánto dinero ha vendido cada departamento (usando JOIN empleados → ventas).
+
+WITH tb_ventasTotale AS (
+    SELECT id_empleado, SUM(monto) AS totalVentas
+    FROM dbo.ventas
+    GROUP BY id_empleado
+)
+
+SELECT d.nombre, COALESCE ( SUM(vt.totalVentas),0) as totalVentas
+FROM dbo.empleados e
+JOIN dbo.departamentos d ON e.id_depto = d.id_depto
+LEFT JOIN tb_ventasTotale vt on e.id_empleado = vt.id_empleado
+GROUP BY d.nombre
+ORDER BY SUM(vt.totalVentas) DESC
+
+
 -- 4.- Encuentra el empleado con mayor monto acumulado en ventas.
+WITH tb_ventasTotale AS (
+    SELECT id_empleado, SUM(monto) AS totalVentas
+    FROM dbo.ventas
+    GROUP BY id_empleado
+    
+)
+  SELECT TOP 1  CONCAT(e.nombre,' ',e.apellido) as nombreEmpleado ,totalVentas
+  FROM tb_ventasTotale vt
+  JOIN dbo.empleados e on vt.id_empleado = e.id_empleado
+  ORDER BY totalVentas DESC
+   
+
+
+
 -- 5.- Muestra los proyectos que superaron un total de 1000 horas asignadas.
+
+
 
 -- ==================================
 -- Consultas avanzadas (CTE, subconsultas, funciones ventana)
